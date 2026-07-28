@@ -1,0 +1,16 @@
+Microsoft Foundry Local - Sıkça Sorulan Sorular (SSS) ve Ürün Rehberi
+
+Soru 1: Microsoft Foundry Local nedir?
+Cevap: Microsoft Foundry Local, yapay zeka ve büyük dil modellerini (LLM) doğrudan kullanıcının kendi bilgisayarında (on-device) internetsiz ve bulut bağımlılığı olmadan çalıştırmasını sağlayan hafif bir yerel AI çalışma zamanı (runtime) ve SDK altyapısıdır.
+
+Soru 2: Foundry Local kullanmak için güçlü bir GPU (ekran kartı) veya bulut hesabı gerekli midir?
+Cevap: Hayır, GPU veya bulut hesabı zorunlu değildir. Foundry Local, bilgisayarın mevcut CPU, NPU ve GPU kaynaklarını otomatik olarak optimize eder ve donanım ivmelendirmesi ile işlemci üzerinde hızlı çıkarım (inference) yapar.
+
+Soru 3: Foundry Local üzerinde hangi modelleri kullanabilirim?
+Cevap: Foundry kataloğundaki Phi-3.5 Mini, Qwen3-0.6B ve Qwen3-Embedding gibi küçük boyutlu, yüksek performanslı açık kaynak ve optimize edilmiş modelleri kullanabilirsiniz.
+
+Soru 4: Yerel sunucu hangi port üzerinden yayın yapar ve nasıl başlatılır?
+Cevap: Terminalde 'foundry server start -p 64390' komutu çalıştırılarak sunucu varsayılan 64390 portundan OpenAI uyumlu bir API adresi (http://127.0.0.1:64390/v1) üzerinden başlatılır.
+
+Soru 5: Veri gizliliği nasıl sağlanır?
+Cevap: Tüm istemler, belgeler ve model yanıtları kullanıcının kendi cihazında işlendiği için dış sunuculara veya internete hiçbir veri aktarılmaz; tam veri gizliliği sağlanır.

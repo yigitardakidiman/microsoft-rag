@@ -1,0 +1,21 @@
+Python ve SQLite ile Vektör Veritabanı Yönetimi Rehberi
+
+1. SQLite Kullanımı:
+Python dili içerisinde 'sqlite3' modülü gömülü olarak gelir. Herhangi bir ekstra sunucu kurulumu gerektirmeden dosya tabanlı (file-based) veritabanı yönetimi sağlar.
+
+2. Veritabanı Tablosu Oluşturma:
+CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content TEXT NOT NULL,
+    embedding TEXT NOT NULL,
+    source TEXT NOT NULL
+);
+
+3. Vektörlerin Saklanması:
+Metin gömme (embedding) modelleri çıktı olarak sayısal bir liste (örneğin 384 veya 1024 boyutlu float dizisi) verir. Bu liste Python'da 'json.dumps(embedding_list)' kullanılarak metin (TEXT) veya JSON formatında veritabanında saklanır. Okurken 'json.loads()' ile tekrar listeye çevrilir.
+
+4. Veri İçe Aktarma (Ingestion) Adımları:
+Adım 1: Kaynak dosyayı UTF-8 formatında oku.
+Adım 2: Metni mantıksal parçalara (chunks) böl.
+Adım 3: Embedding API'sini çağırarak parçanın vektörünü al.
+Adım 4: Parça metnini, vektörünü ve dosya adını SQLite tablosuna ekle.
