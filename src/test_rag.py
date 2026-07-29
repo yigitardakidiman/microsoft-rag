@@ -90,21 +90,22 @@ def run_evaluation():
                 reason = "Bilgi dışı durum için beklenen anahtar kelime eşleşmedi."
         else:
             formatted_context = "\n\n---\n\n".join([f"[Kaynak: {c['source']}]\n{c['content']}" for c in chunks])
-            system_prompt = f"""Sen yardımsever bir asistansın.
-Aşağıda verilen bağlam bilgilerini kullanarak kullanıcının sorusunu cevapla.
-Cevap verirken faydalandığın kaynak dosya adını (örneğin [Kaynak: sample.txt]) belirt.
-Eğer cevabı verilen bağlamda bulamıyorsan 'Bu bilgiye sahip değilim.' de ve uydurma.
+            user_prompt = f"""Aşağıdaki BAĞLAM bilgilerini kullanarak soruyu cevapla.
+Yanıtının sonuna faydalandığın kaynak adını ekle (örnek: [Kaynak: {chunks[0]['source']}]).
+Eğer verilen bağlamda sorunun cevabı yoksa, SADECE "Bu bilgiye sahip değilim." yanıtını ver ve uydurma.
 
 BAĞLAM:
 {formatted_context}
-"""
+
+SORU:
+{test['query']}"""
             gen_start = time.time()
             try:
                 response = client.chat.completions.create(
                     model=CHAT_MODEL,
                     messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": test['query']}
+                        {"role": "system", "content": "Sen yerel bir soru-cevap asistansın. Verilen bağlam dışına çıkma."},
+                        {"role": "user", "content": user_prompt}
                     ]
                 )
                 answer = response.choices[0].message.content
@@ -112,6 +113,12 @@ BAĞLAM:
                     answer = answer.split("</think>")[-1].lstrip()
                 elif "<think>" in answer:
                     answer = answer.split("<think>")[0].rstrip()
+                if "SORU:" in answer:
+                    answer = answer.split("SORU:")[-1].strip()
+                    if test['query'] in answer:
+                        answer = answer.replace(test['query'], "").strip()
+                if not answer.strip():
+                    answer = "Bu bilgiye sahip değilim."
                 gen_time = time.time() - gen_start
                 total_gen_time += gen_time
                 print(f"Yanıt Üretim Süresi: {gen_time:.2f} saniye")

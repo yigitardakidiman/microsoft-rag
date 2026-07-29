@@ -21,32 +21,41 @@ def answer_query(user_question):
         
     formatted_context = "\n\n---\n\n".join([f"[Kaynak: {c['source']}]\n{c['content']}" for c in chunks])
     
-    system_prompt = f"""Sen yardımsever bir asistansın.
-Aşağıda verilen bağlam (context) bilgilerini kullanarak kullanıcının sorusunu cevapla.
-Cevap verirken faydalandığın kaynak dosya adını (örneğin [Kaynak: sample.txt]) belirt.
-Eğer cevabı verilen bağlamda bulamıyorsan 'Bu bilgiye sahip değilim.' de ve uydurma.
+    user_prompt = f"""Aşağıdaki BAĞLAM bilgilerini kullanarak soruyu cevapla.
+Yanıtının sonuna faydalandığın kaynak adını ekle (örnek: [Kaynak: {chunks[0]['source']}]).
+Eğer verilen bağlamda sorunun cevabı yoksa, SADECE "Bu bilgiye sahip değilim." yanıtını ver ve uydurma.
 
 BAĞLAM:
 {formatted_context}
-"""
+
+SORU:
+{user_question}"""
 
     print(f"🤖 Yapay zeka ({CHAT_MODEL}) yanıt üretiyor...\n")
     try:
         response = client.chat.completions.create(
             model=CHAT_MODEL,
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_question}
+                {"role": "system", "content": "Sen yerel bir soru-cevap asistansın. Verilen bağlam dışına çıkma."},
+                {"role": "user", "content": user_prompt}
             ],
             max_tokens=600,
             stream=False
         )
         answer = response.choices[0].message.content
-        # Düşünme etiketlerini temizle
         if "<think>" in answer and "</think>" in answer:
             answer = answer.split("</think>")[-1].lstrip()
         elif "<think>" in answer:
             answer = answer.split("<think>")[0].rstrip()
+            
+        if "SORU:" in answer:
+            answer = answer.split("SORU:")[-1].strip()
+            if user_question in answer:
+                answer = answer.replace(user_question, "").strip()
+                
+        if not answer.strip():
+            answer = "Bu bilgiye sahip değilim."
+            
         return answer
     except Exception as e:
         return f"Model hatası: {e}"
